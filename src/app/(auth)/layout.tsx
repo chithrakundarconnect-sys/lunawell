@@ -1,0 +1,7 @@
+export default function ObsoleteLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <>{children}</>;
+}
