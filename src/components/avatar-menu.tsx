@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,17 +9,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { KikiAvatar, Avatar1, Avatar2, Avatar3 } from './icons';
-import { User, Upload } from 'lucide-react';
+import { KikiUserAvatar, Avatar1, Avatar2, Avatar3 } from './icons';
+import { Upload } from 'lucide-react';
 
 type PredefinedAvatar = {
-    id: string;
-    component: React.ReactElement;
-    label: string;
+  id: string;
+  component: React.ReactElement;
+  label: string;
 };
 
 const predefinedAvatars: PredefinedAvatar[] = [
-  { id: 'kiki', component: <KikiAvatar />, label: 'Kiki' },
+  { id: 'kiki', component: <KikiUserAvatar />, label: 'Kiki' },
   { id: 'avatar1', component: <Avatar1 />, label: 'Avatar 1' },
   { id: 'avatar2', component: <Avatar2 />, label: 'Avatar 2' },
   { id: 'avatar3', component: <Avatar3 />, label: 'Avatar 3' },
@@ -31,18 +30,31 @@ export function AvatarMenu() {
   const [uploadedSrc, setUploadedSrc] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      const newSrc = URL.createObjectURL(file);
-      
-      if (uploadedSrc) {
-        URL.revokeObjectURL(uploadedSrc);
-      }
-
-      setUploadedSrc(newSrc);
-      setSelectedId('uploaded');
+  /* ---------- LOAD SAVED AVATAR AFTER REFRESH ---------- */
+  React.useEffect(() => {
+    const saved = localStorage.getItem("user-avatar");
+    if (saved) {
+      setUploadedSrc(saved);
+      setSelectedId("uploaded");
     }
+  }, []);
+
+  /* ---------- HANDLE IMAGE UPLOAD ---------- */
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      setUploadedSrc(base64);
+      setSelectedId("uploaded");
+
+      localStorage.setItem("user-avatar", base64);
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const handleUploadClick = () => {
@@ -51,19 +63,12 @@ export function AvatarMenu() {
 
   const handleSelectAvatar = (id: string) => {
     setSelectedId(id);
-    if (id !== 'uploaded' && uploadedSrc) {
-      URL.revokeObjectURL(uploadedSrc);
+
+    if (id !== 'uploaded') {
       setUploadedSrc(null);
+      localStorage.removeItem("user-avatar");
     }
   };
-
-  React.useEffect(() => {
-    return () => {
-      if (uploadedSrc) {
-        URL.revokeObjectURL(uploadedSrc);
-      }
-    };
-  }, [uploadedSrc]);
 
   const selectedAvatar = predefinedAvatars.find(a => a.id === selectedId);
 
@@ -71,36 +76,39 @@ export function AvatarMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-full">
-          <Avatar className="h-9 w-9 border-2 border-primary/50">
+          <div className="h-9 w-9 rounded-full border-2 border-primary/50 overflow-hidden flex items-center justify-center bg-primary/10">
+
             {selectedId === 'uploaded' && uploadedSrc ? (
-              <>
-                <AvatarImage src={uploadedSrc} alt="Uploaded Avatar" />
-                <AvatarFallback>
-                  <User className="h-5 w-5" />
-                </AvatarFallback>
-              </>
-            ) : (
-              selectedAvatar?.component ?? (
-                <AvatarFallback>
-                  <User className="h-5 w-5" />
-                </AvatarFallback>
-              )
-            )}
-          </Avatar>
+              <img
+                src={uploadedSrc}
+                alt="Uploaded Avatar"
+                className="h-full w-full object-cover"
+              />
+            ) : selectedAvatar ? (
+              <div className="h-full w-full flex items-center justify-center">
+                {selectedAvatar.component}
+              </div>
+            ) : null}
+
+          </div>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end">
+
+      <DropdownMenuContent align="end" side="bottom" sideOffset={8} className="w-56 z-50">
         <DropdownMenuLabel>Choose Your Avatar</DropdownMenuLabel>
         <DropdownMenuSeparator />
+
         {predefinedAvatars.map((avatar) => (
           <DropdownMenuItem key={avatar.id} onClick={() => handleSelectAvatar(avatar.id)}>
-            <Avatar className="h-8 w-8 mr-2">
-                {avatar.component}
-            </Avatar>
+            <div className="h-8 w-8 mr-2 rounded-full overflow-hidden flex items-center justify-center bg-primary/10">
+              {avatar.component}
+            </div>
             <span>{avatar.label}</span>
           </DropdownMenuItem>
         ))}
+
         <DropdownMenuSeparator />
+
         <DropdownMenuItem onClick={handleUploadClick}>
           <Upload className="mr-2 h-4 w-4" />
           <span>Upload Image</span>

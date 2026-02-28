@@ -1,56 +1,91 @@
-'use client';
+"use client";
 
-import { use } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Logo } from '@/components/icons';
-import { useTranslation } from '@/lib/i18n/client';
+import { useState } from "react";
+import { auth } from "@/lib/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
-export default function LoginPage({ params }: { params: { lng: string } }) {
-  const { lng } = use(params);
-  const { t } = useTranslation(lng, 'common');
+export default function LoginPage() {
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e: any) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push("/en");
+    } catch (err: any) {
+      setError("Invalid email or password");
+    }
+  };
+
   return (
-    <div className="w-full max-w-sm">
-      <div className="flex justify-center mb-6">
-        <div className="flex items-center gap-2">
-          <Logo className="text-primary h-8 w-8" />
-          <h1 className="text-2xl font-semibold font-headline">LunaWell</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-100 to-rose-100">
+
+      <div className="bg-white p-8 rounded-3xl shadow-2xl w-[360px] text-center">
+
+        {/* 🌸 GIRL AVATAR */}
+        <div className="flex justify-center mb-4">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/4140/4140047.png"
+            alt="cute girl"
+            className="w-24 h-24 rounded-full shadow-md"
+          />
         </div>
+
+        <h1 className="text-3xl font-bold text-purple-700">
+          LunaWell 🌙
+        </h1>
+
+        <p className="text-gray-500 mb-6">
+          Welcome back! Take a deep breath 💜
+        </p>
+
+        <form onSubmit={handleLogin} className="space-y-4">
+
+          <input
+            type="email"
+            placeholder="Email address"
+            className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-purple-300"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-purple-300"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          {error && (
+            <p className="text-red-500 text-sm">{error}</p>
+          )}
+
+          <button
+            type="submit"
+            className="w-full bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-xl font-semibold transition"
+          >
+            Log In
+          </button>
+        </form>
+
+        <p className="mt-5 text-sm">
+          Don't have an account?{" "}
+          <a href="/en/signup" className="text-purple-600 font-semibold">
+            Create Account
+          </a>
+        </p>
+
       </div>
-      <Card className="w-full">
-        <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-2xl">{t('login_welcome')}</CardTitle>
-          <CardDescription>{t('login_prompt')}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 pt-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="jane@example.com" required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" placeholder="••••••••" required />
-          </div>
-          <Button type="submit" className="w-full">
-            {t('login')}
-          </Button>
-          <p className="text-center text-sm text-muted-foreground pt-2">
-            {t('login_no_account')}{' '}
-            <Link href={`/${lng}/signup`} className="font-medium text-primary hover:underline">
-              {t('signup')}
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
     </div>
   );
 }

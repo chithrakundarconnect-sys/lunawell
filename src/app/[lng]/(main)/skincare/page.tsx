@@ -1,6 +1,7 @@
 "use client"
 
-import { use, useState } from "react"
+import * as React from 'react';
+import { useState } from "react"
 import { Check, Sun, Moon, Plus } from "lucide-react"
 
 import type { SkincareItem } from "@/lib/types"
@@ -21,10 +22,22 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useAuth } from "@/context/AuthContext";
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  updateDoc,
+  doc,
+  serverTimestamp
+} from 'firebase/firestore';
 
 const initialMorningRoutine: SkincareItem[] = [
-  { id: "m1", name: "Cleanse", completed: true },
-  { id: "m2", name: "Toner", completed: true },
+  { id: "m1", name: "Cleanse", completed: false },
+  { id: "m2", name: "Toner", completed: false },
   { id: "m3", name: "Vitamin C Serum", completed: false },
   { id: "m4", name: "Moisturizer", completed: false },
   { id: "m5", name: "SPF 50+", completed: false },
@@ -114,24 +127,90 @@ function AddProductDialog({ onAddProduct, children }: { onAddProduct: (name: str
   );
 }
 
-export default function SkincarePage({ params }: { params: { lng: string } }) {
-  const { lng } = use(params);
+export default function SkincarePage({ params }: { params: Promise<{ lng: string }> }) {
+  const { lng } = React.use(params);
   const { t } = useTranslation(lng, 'common');
+
+const { user } = useAuth();
+const todayDate = new Date().toLocaleDateString('en-CA');
+const [docId, setDocId] = React.useState<string | null>(null);
+
   const [morningRoutine, setMorningRoutine] = useState(initialMorningRoutine)
   const [eveningRoutine, setEveningRoutine] = useState(initialEveningRoutine)
+  const [loading, setLoading] = React.useState(true);
+  const [activeTab, setActiveTab] = React.useState<'morning' | 'evening'>('morning');
+  React.useEffect(() => {
+  if (!user) return;
 
-  const toggleItem = (list: 'morning' | 'evening') => (id: string) => {
-    const routineMap = {
-      morning: { items: morningRoutine, setter: setMorningRoutine },
-      evening: { items: eveningRoutine, setter: setEveningRoutine },
+  const loadSkincare = async () => {
+    const q = query(
+      collection(db, "dailyHealth"),
+      where("userId", "==", user.uid),
+      where("date", "==", todayDate)
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (!snapshot.empty) {
+      const d = snapshot.docs[0];
+      const data = d.data();
+
+      if (data.skincareMorning) setMorningRoutine(data.skincareMorning);
+      if (data.skincareEvening) setEveningRoutine(data.skincareEvening);
+
+      setDocId(d.id);
+      setLoading(false);
+    } else {
+      const newDoc = await addDoc(collection(db, "dailyHealth"), {
+        userId: user.uid,
+        date: todayDate,
+        skincareMorning: initialMorningRoutine,
+        skincareEvening: initialEveningRoutine,
+        createdAt: serverTimestamp(),
+      });
+
+      setDocId(newDoc.id);
+      setLoading(false);
     }
-    const { items, setter } = routineMap[list]
-    setter(
-      items.map((item) =>
-        item.id === id ? { ...item, completed: !item.completed } : item
-      )
-    )
+  };
+
+  loadSkincare();
+}, [user]);
+React.useEffect(() => {
+  const hour = new Date().getHours();
+
+  if (hour >= 18) {
+    setActiveTab('evening');
+  } else {
+    setActiveTab('morning');
   }
+}, []);
+
+ const toggleItem = (list: 'morning' | 'evening') => async (id: string) => {
+  if (!user || !docId) return;
+
+  const routineMap = {
+    morning: { items: morningRoutine, setter: setMorningRoutine, field: "skincareMorning" },
+    evening: { items: eveningRoutine, setter: setEveningRoutine, field: "skincareEvening" },
+  };
+
+  const { items, setter, field } = routineMap[list];
+
+  const updated = items.map((item) =>
+    item.id === id ? { ...item, completed: !item.completed } : item
+  );
+
+  // update UI instantly
+  setter(updated);
+
+  // update Firestore
+  const docRef = doc(db, "dailyHealth", docId);
+
+  await updateDoc(docRef, {
+    [field]: updated,
+    updatedAt: serverTimestamp(),
+  });
+};
   
   const addProductToMorningRoutine = (name: string) => {
     const newItem: SkincareItem = {
@@ -150,6 +229,14 @@ export default function SkincarePage({ params }: { params: { lng: string } }) {
       };
       setEveningRoutine(prev => [...prev, newItem]);
   };
+  /* ⭐⭐⭐ THE IMPORTANT FIX ⭐⭐⭐ */
+if (loading) {
+return (
+<div className="p-10 text-center text-lg">
+Loading skincare...
+</div>
+);
+}
 
   return (
     <div className="space-y-8">
@@ -160,7 +247,11 @@ export default function SkincarePage({ params }: { params: { lng: string } }) {
         </p>
       </div>
 
-      <Tabs defaultValue="morning" className="w-full">
+      <Tabs
+  value={activeTab}
+  onValueChange={(v) => setActiveTab(v as 'morning' | 'evening')}
+  className="w-full"
+>
         <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
           <TabsTrigger value="morning">
             <Sun className="mr-2 h-4 w-4" />

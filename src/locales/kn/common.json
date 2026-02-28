@@ -1,8 +1,8 @@
 {
-  "greeting": "ನಮಸ್ಕಾರ, ಸ್ನೇಹಿತ!",
-  "greeting_morning": "ಶುಭೋದಯ, ಸ್ನೇಹಿತ!",
-  "greeting_afternoon": "ಶುಭ ಮಧ್ಯಾಹ್ನ, ಸ್ನೇಹಿತ!",
-  "greeting_evening": "ಶುಭ ಸಂಜೆ, ಸ್ನೇಹಿತ!",
+  "greeting": "ನಮಸ್ಕಾರ",
+  "greeting_morning": "ಶುಭೋದಯ",
+  "greeting_afternoon": "ಶುಭ ಮಧ್ಯಾಹ್ನ",
+  "greeting_evening": "ಶುಭ ಸಂಜೆ",
   "dashboard_subtitle": "ಇಂದು {{date}} ಗಾಗಿ ನಿಮ್ಮ ಸ್ವಾಸ್ಥ್ಯದ ಸ್ನ್ಯಾಪ್‌ಶಾಟ್ ಇಲ್ಲಿದೆ.",
   "settings_title": "ಪ್ರೊಫೈಲ್ ಮತ್ತು ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
   "settings_subtitle": "ನಿಮ್ಮ ಖಾತೆ ಮತ್ತು ಅಪ್ಲಿಕೇಶನ್ ಪ್ರಾಶಸ್ತ್ಯಗಳನ್ನು ನಿರ್ವಹಿಸಿ.",

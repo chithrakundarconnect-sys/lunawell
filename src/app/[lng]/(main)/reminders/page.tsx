@@ -1,6 +1,7 @@
 "use client"
 
-import { use, useState } from "react"
+import * as React from 'react';
+import { useState } from "react"
 import { Bell, Clock, Plus, Tag } from "lucide-react"
 
 import type { Reminder } from "@/lib/types"
@@ -34,18 +35,61 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 
-const initialReminders: Reminder[] = [
-  { id: "1", title: "Take Vitamin D supplement", time: "09:00 AM", type: "Medication" },
-  { id: "2", title: "Gynecologist Appointment", time: "02:30 PM", type: "Appointment" },
-  { id: "3", title: "Evening Meditation", time: "09:00 PM", type: "Self-care" },
-  { id: "4", title: "Refill prescription", time: "11:00 AM", type: "Medication" },
-];
+import { useAuth } from "@/context/AuthContext";
+import { db } from "@/lib/firebase";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+  deleteDoc,
+  serverTimestamp
+} from "firebase/firestore";
 
-export default function RemindersPage({ params }: { params: { lng: string } }) {
-  const { lng } = use(params);
+export default function RemindersPage({ params }: { params: Promise<{ lng: string }> }) {
+  const { lng } = React.use(params);
   const { t } = useTranslation(lng, 'common');
-  const [reminders, setReminders] = useState(initialReminders)
+
+  const { user } = useAuth();
+
+  const [reminders, setReminders] = useState<Reminder[]>([])
   const [open, setOpen] = useState(false)
+
+  const [title, setTitle] = useState("")
+  const [time, setTime] = useState("12:00")
+  const [type, setType] = useState<Reminder["type"]>("Medication")
+
+  /* 🔹 Load reminders */
+  React.useEffect(() => {
+    if (!user) return;
+
+    const loadReminders = async () => {
+      const q = query(
+        collection(db, "reminders"),
+        where("userId", "==", user.uid)
+      );
+
+      const snapshot = await getDocs(q);
+
+      const list: Reminder[] = [];
+
+      snapshot.forEach((d) => {
+        const data = d.data();
+        list.push({
+          id: d.id,
+          title: data.title,
+          time: data.time,
+          type: data.type,
+        });
+      });
+
+      setReminders(list);
+    };
+
+    loadReminders();
+  }, [user]);
 
   const getTypeBadge = (type: Reminder['type']) => {
     switch(type) {
@@ -64,6 +108,7 @@ export default function RemindersPage({ params }: { params: { lng: string } }) {
             {t('page_subtitle_reminders')}
           </p>
         </div>
+
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -71,6 +116,7 @@ export default function RemindersPage({ params }: { params: { lng: string } }) {
               {t('add_reminder')}
             </Button>
           </DialogTrigger>
+
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>New Reminder</DialogTitle>
@@ -78,42 +124,83 @@ export default function RemindersPage({ params }: { params: { lng: string } }) {
                 Set a reminder for your medication, appointments, or self-care activities.
               </DialogDescription>
             </DialogHeader>
+
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-4">
                 <Label htmlFor="title" className="text-left sm:text-right">
                   Title
                 </Label>
-                <Input id="title" placeholder="e.g., Evening Meditation" className="col-span-3" />
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g., Evening Meditation"
+                  className="col-span-3"
+                />
               </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-4">
                 <Label htmlFor="time" className="text-left sm:text-right">
                   Time
                 </Label>
-                <Input id="time" type="time" defaultValue="12:00" className="col-span-3" />
+                <Input
+                  id="time"
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="col-span-3"
+                />
               </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-4">
                 <Label htmlFor="type" className="text-left sm:text-right">
                   Type
                 </Label>
-                <Select>
+                <Select onValueChange={(v) => setType(v as Reminder["type"])}>
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select a type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="medication">Medication</SelectItem>
-                    <SelectItem value="appointment">Appointment</SelectItem>
-                    <SelectItem value="self-care">Self-care</SelectItem>
+                    <SelectItem value="Medication">Medication</SelectItem>
+                    <SelectItem value="Appointment">Appointment</SelectItem>
+                    <SelectItem value="Self-care">Self-care</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
+
             <DialogFooter>
-              <Button type="submit" onClick={() => setOpen(false)}>Save Reminder</Button>
+              <Button
+                type="button"
+                onClick={async () => {
+                  if (!user || !title) return;
+
+                  const docRef = await addDoc(collection(db, "reminders"), {
+                    userId: user.uid,
+                    title,
+                    time,
+                    type,
+                    createdAt: serverTimestamp(),
+                  });
+
+                  setReminders(prev => [
+                    ...prev,
+                    { id: docRef.id, title, time, type }
+                  ]);
+
+                  setTitle("");
+                  setTime("12:00");
+                  setType("Medication");
+                  setOpen(false);
+                }}
+              >
+                Save Reminder
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
-      
+
       <div className="border rounded-lg overflow-x-auto">
         <Table>
           <TableHeader>

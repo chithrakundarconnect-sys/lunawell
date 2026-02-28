@@ -1,8 +1,8 @@
 {
-  "greeting": "Hello, Friend!",
-  "greeting_morning": "Good Morning, Friend!",
-  "greeting_afternoon": "Good Afternoon, Friend!",
-  "greeting_evening": "Good Evening, Friend!",
+  "greeting": "Hello",
+  "greeting_morning": "Good Morning",
+  "greeting_afternoon": "Good Afternoon",
+  "greeting_evening": "Good Evening",
   "dashboard_subtitle": "Here's your wellness snapshot for {{date}}.",
   "settings_title": "Profile & Settings",
   "settings_subtitle": "Manage your account and app preferences.",

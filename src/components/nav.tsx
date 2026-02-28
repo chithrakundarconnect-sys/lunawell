@@ -13,7 +13,6 @@ import {
   Settings,
   Trophy,
   BookHeart,
-  Apple,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -40,10 +39,13 @@ export function Nav({ lng }: { lng: string }) {
     { href: `/${lng}/journal`, label: t('sidebar_journal'), icon: BookHeart },
     { href: `/${lng}/water`, label: t('sidebar_water_intake'), icon: GlassWater },
     { href: `/${lng}/skincare`, label: t('sidebar_skincare'), icon: Smile },
-    { href: `/${lng}/diet`, label: t('sidebar_diet_tracking'), icon: Apple },
     { href: `/${lng}/reminders`, label: t('sidebar_reminders'), icon: Bell },
     { href: `/${lng}/reports`, label: t('sidebar_reports'), icon: LineChart },
     { href: `/${lng}/achievements`, label: t('sidebar_achievements'), icon: Trophy },
+
+    // ⭐ NEW PAGE (your breast awareness)
+    { href: `/${lng}/breast-awareness`, label: "Breast Awareness", icon: HeartPulse },
+
     { href: `/${lng}/chatbot`, label: t('sidebar_ai_assistant'), icon: Bot },
     { href: `/${lng}/settings`, label: t('sidebar_settings'), icon: Settings },
   ]
@@ -59,6 +61,7 @@ export function Nav({ lng }: { lng: string }) {
           <h1 className="text-lg sm:text-xl font-semibold font-headline">LunaWell</h1>
         </div>
       </SidebarHeader>
+
       <SidebarContent>
         <SidebarMenu>
           {navItems.map((item) => (
@@ -77,13 +80,16 @@ export function Nav({ lng }: { lng: string }) {
           ))}
         </SidebarMenu>
       </SidebarContent>
+
       <SidebarFooter className="p-4">
         <div className="hidden flex-col gap-2 group-data-[state=expanded]:flex">
-            <h3 className="font-semibold text-sm font-headline">Need a Digital Detox?</h3>
-            <p className="text-xs text-muted-foreground">Log out to take a break and focus on your wellbeing offline.</p>
-            <Button variant="secondary" size="sm" className="w-full" asChild>
-              <Link href={`/${lng}/login`}>{t('logout')}</Link>
-            </Button>
+          <h3 className="font-semibold text-sm font-headline">Need a Digital Detox?</h3>
+          <p className="text-xs text-muted-foreground">
+            Log out to take a break and focus on your wellbeing offline.
+          </p>
+          <Button variant="secondary" size="sm" className="w-full" asChild>
+            <Link href={`/${lng}/login`}>{t('logout')}</Link>
+          </Button>
         </div>
       </SidebarFooter>
     </Sidebar>

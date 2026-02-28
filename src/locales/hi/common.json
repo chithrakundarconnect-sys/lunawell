@@ -1,7 +1,7 @@
 {
-  "greeting": "नमस्ते, दोस्त!",
-  "greeting_morning": "सुप्रभात, दोस्त!",
-  "greeting_afternoon": "शुभ दोपहर, दोस्त!",
+  "greeting": "नमस्ते",
+  "greeting_morning": "सुप्रभात",
+  "greeting_afternoon": "शुभ दोपहर!",
   "greeting_evening": "शुभ संध्या, दोस्त!",
   "dashboard_subtitle": "यहाँ {{date}} के लिए आपका वेलनेस स्नैपशॉट है।",
   "settings_title": "प्रोफ़ाइल और सेटिंग्स",

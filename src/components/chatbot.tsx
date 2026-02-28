@@ -104,15 +104,19 @@ export function Chatbot() {
                 </Avatar>
               )}
               <div
-                className={cn(
-                  "max-w-md rounded-xl px-4 py-3 text-sm shadow-sm",
-                  message.sender === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-secondary-foreground"
-                )}
-              >
-                {message.text}
-              </div>
+  className={cn(
+    "max-w-xs sm:max-w-md rounded-2xl px-4 py-3 text-sm shadow-sm",
+    message.sender === "user"
+      ? "bg-primary text-primary-foreground"
+      : "bg-secondary text-secondary-foreground"
+  )}
+>
+  {message.text.split('\n').map((line, index) => (
+    <p key={index} className="mb-2 leading-relaxed whitespace-pre-wrap break-words">
+      {line}
+    </p>
+  ))}
+</div>
               {message.sender === "user" && (
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-accent text-accent-foreground">

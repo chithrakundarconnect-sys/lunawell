@@ -1,10 +1,13 @@
-import { Chatbot } from "@/components/chatbot";
-import { useTranslation } from "@/lib/i18n";
-import { use } from 'react';
+'use client';
 
-export default function ChatbotPage({ params }: { params: { lng: string } }) {
-  const { lng } = use(params);
-  const { t } = use(useTranslation(lng, 'common'));
+import * as React from 'react';
+import { Chatbot } from "@/components/chatbot";
+import { useTranslation } from "@/lib/i18n/client";
+
+
+export default function ChatbotPage({ params }: { params: Promise<{ lng: string }> }) {
+  const { lng } = React.use(params);
+  const { t } = useTranslation(lng, 'common');
   return (
     <div className="flex flex-col h-full">
       <div className="mb-4">
