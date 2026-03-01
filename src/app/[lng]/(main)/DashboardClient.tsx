@@ -59,6 +59,10 @@ export default function DashboardClient({ lng }: { lng: string }) {
   const [sleepHours, setSleepHours] = useState<number | null>(null);
   const [morningDone, setMorningDone] = useState(0);
   const [eveningDone, setEveningDone] = useState(0);
+  // PERIOD DATA (ML NEEDS THIS)
+const [cycleLength, setCycleLength] = useState<number | null>(null);
+const [periodLength, setPeriodLength] = useState<number | null>(null);
+const [lastPeriodDate, setLastPeriodDate] = useState<string | null>(null);
 
   const [stressLevel] = useState(3);
 
@@ -152,6 +156,28 @@ export default function DashboardClient({ lng }: { lng: string }) {
     console.log("Dashboard health load error", e);
   }
 };
+ // -------- LOAD PERIOD DATA FROM USERS COLLECTION ----------
+const loadPeriodData = async () => {
+  if (!user) return;
+
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const snapshot = await getDoc(userRef);
+
+    if (!snapshot.exists()) return;
+
+    const data: any = snapshot.data();
+
+    setCycleLength(data.cycleLength || null);
+    setPeriodLength(data.periodLength || null);
+    setLastPeriodDate(data.lastPeriodDate || null);
+
+    console.log("Period data loaded:", data);
+
+  } catch (e) {
+    console.log("Period data load error", e);
+  }
+};
   // ---------------- INITIAL LOAD ----------------
   useEffect(() => {
     if (!user) return;
@@ -175,6 +201,7 @@ export default function DashboardClient({ lng }: { lng: string }) {
 
       await loadTodayWater();
       await loadTodayHealth();
+      await loadPeriodData();
     };
 
     init();
@@ -182,6 +209,7 @@ export default function DashboardClient({ lng }: { lng: string }) {
     const onFocus = () => {
       loadTodayWater();
       loadTodayHealth();
+      loadPeriodData();
     };
 
     window.addEventListener("focus", onFocus);

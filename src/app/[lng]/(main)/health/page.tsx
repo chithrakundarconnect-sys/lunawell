@@ -41,6 +41,7 @@ import {
   getDocs,
   addDoc,
   updateDoc,
+  setDoc,
   doc,
   serverTimestamp
 } from 'firebase/firestore';
@@ -53,6 +54,8 @@ const todayDate = new Date().toISOString().split("T")[0];
 const [docId, setDocId] = React.useState<string | null>(null);
 
 const [lastPeriodDate, setLastPeriodDate] = React.useState<Date>();
+const [cycleLength, setCycleLength] = React.useState<number>(28);
+const [periodLength, setPeriodLength] = React.useState<number>(5);
 const [stressLevel, setStressLevel] = React.useState([3]);
 const [energyLevel, setEnergyLevel] = React.useState([5]);
 
@@ -119,13 +122,29 @@ createdAt: serverTimestamp(),
 };
 
 try {
-if (docId) {
-await updateDoc(doc(db, "dailyHealth", docId), healthData);
-} else {
-const newDoc = await addDoc(collection(db, "dailyHealth"), healthData);
-setDocId(newDoc.id);
-}
+await setDoc(
+  doc(db, "users", user.uid),
+  {
+    lastPeriodDate: lastPeriodDate
+      ? lastPeriodDate.toISOString().split("T")[0]
+      : null,
+    cycleLength: cycleLength,
+    periodLength: periodLength,
+  },
+  { merge: true }
+);
 
+await setDoc(
+  doc(db, "users", user.uid),
+  {
+    lastPeriodDate: lastPeriodDate
+      ? lastPeriodDate.toISOString().split("T")[0]
+      : null,
+    cycleLength: cycleLength,
+    periodLength: periodLength,
+  },
+  { merge: true }
+);
 toast({
   title: "Health Data Saved!",
   description: "Your wellness data has been updated successfully.",
@@ -207,11 +226,23 @@ return (
             </div>  
             <div className="space-y-2">  
               <Label htmlFor="cycle-length">Average Cycle Length (days)</Label>  
-              <Input id="cycle-length" type="number" placeholder="e.g., 28" defaultValue={28} />  
+              <Input
+  id="cycle-length"
+  type="number"
+  placeholder="e.g., 28"
+  value={cycleLength}
+  onChange={(e) => setCycleLength(Number(e.target.value))}
+/>
             </div>  
             <div className="space-y-2">  
               <Label htmlFor="period-length">Average Period Length (days)</Label>  
-              <Input id="period-length" type="number" placeholder="e.g., 5" defaultValue={5} />  
+              <Input
+  id="period-length"
+  type="number"
+  placeholder="e.g., 5"
+  value={periodLength}
+  onChange={(e) => setPeriodLength(Number(e.target.value))}
+/>
             </div>  
           </>  
         )}  
@@ -346,4 +377,3 @@ return (
 
 );
 }
-
