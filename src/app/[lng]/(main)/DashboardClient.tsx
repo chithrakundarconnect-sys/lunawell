@@ -41,6 +41,7 @@ import {
   doc,
   getDoc
 } from "firebase/firestore";
+//import { getPeriodPrediction } from "@/lib/mlService";
 export default function DashboardClient({ lng }: { lng: string }) {
 
   const { t } = useTranslation(lng, 'common');
@@ -63,6 +64,7 @@ export default function DashboardClient({ lng }: { lng: string }) {
 const [cycleLength, setCycleLength] = useState<number | null>(null);
 const [periodLength, setPeriodLength] = useState<number | null>(null);
 const [lastPeriodDate, setLastPeriodDate] = useState<string | null>(null);
+const [prediction, setPrediction] = useState<any>(null);
 
   const [stressLevel] = useState(3);
 
@@ -178,6 +180,26 @@ const loadPeriodData = async () => {
     console.log("Period data load error", e);
   }
 };
+// -------- ML PREDICTION --------
+// useEffect(() => {
+//   const runPrediction = async () => {
+//     if (!lastPeriodDate || !cycleLength) return;
+
+//     try {
+//       const result = await getPeriodPrediction(
+//         lastPeriodDate,
+//         cycleLength
+//       );
+
+//       console.log("ML Prediction:", result);
+//       setPrediction(result);
+//     } catch (err) {
+//       console.log("ML error", err);
+//     }
+//   };
+
+//   runPrediction();
+// }, [lastPeriodDate, cycleLength]);
   // ---------------- INITIAL LOAD ----------------
   useEffect(() => {
     if (!user) return;
