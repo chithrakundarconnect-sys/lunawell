@@ -36,12 +36,11 @@ import {
   query,
   where,
   getDocs,
-  orderBy,
-  limit,
   doc,
-  getDoc
-} from "firebase/firestore";
-//import { getPeriodPrediction } from "@/lib/mlService";
+  getDoc,
+  setDoc 
+}from "firebase/firestore";
+import { getPeriodPrediction } from "@/lib/mlService";
 export default function DashboardClient({ lng }: { lng: string }) {
 
   const { t } = useTranslation(lng, 'common');
@@ -76,22 +75,27 @@ const [prediction, setPrediction] = useState<any>(null);
 
   // ---------------- SAVE MOOD ----------------
   const saveHealthData = async (moodValue: string) => {
-    if (!user) return;
+  if (!user) return;
 
-    try {
-      await addDoc(collection(db, "dailyHealth"), {
-        userId: user.uid,
-        mood: moodValue,
-        stressLevel,
-        sleepHours: sleepHours || 0,
-        dayState,
-        createdAt: serverTimestamp(),
-      });
-    } catch (error) {
-      console.error("Firestore error:", error);
-    }
-  };
+  try {
+    const todayDate = new Date().toISOString().split("T")[0];
 
+    await addDoc(collection(db, "dailyHealth"), {
+      userId: user.uid,
+      date: todayDate,   // ⭐⭐⭐ THIS IS THE MISSING PIECE
+      mood: moodValue,
+      stressLevel,
+      sleepHours: sleepHours || 0,
+      dayState,
+      createdAt: serverTimestamp(),
+    });
+
+    console.log("Health data saved with date:", todayDate);
+
+  } catch (error) {
+    console.error("Firestore error:", error);
+  }
+};
   // ---------------- LOAD TODAY WATER ----------------
   const loadTodayWater = async () => {
   if (!user) return;
@@ -181,25 +185,25 @@ const loadPeriodData = async () => {
   }
 };
 // -------- ML PREDICTION --------
-// useEffect(() => {
-//   const runPrediction = async () => {
-//     if (!lastPeriodDate || !cycleLength) return;
+useEffect(() => {
+  const runPrediction = async () => {
+    if (!lastPeriodDate || !cycleLength) return;
 
-//     try {
-//       const result = await getPeriodPrediction(
-//         lastPeriodDate,
-//         cycleLength
-//       );
+    try {
+      const result = await getPeriodPrediction(
+        lastPeriodDate,
+        cycleLength
+      );
 
-//       console.log("ML Prediction:", result);
-//       setPrediction(result);
-//     } catch (err) {
-//       console.log("ML error", err);
-//     }
-//   };
+      console.log("ML Prediction:", result);
+      setPrediction(result);
+    } catch (err) {
+      console.log("ML error", err);
+    }
+  };
 
-//   runPrediction();
-// }, [lastPeriodDate, cycleLength]);
+  runPrediction();
+}, [lastPeriodDate, cycleLength]);
   // ---------------- INITIAL LOAD ----------------
   useEffect(() => {
     if (!user) return;
@@ -367,6 +371,47 @@ const loadPeriodData = async () => {
         </Card>
 
       </div>
+      {/* Period Prediction Card */}
+{prediction && (
+  <div className="mt-8">
+    <Card className="border-pink-200 bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 shadow-md">
+      
+      <CardHeader>
+        <CardTitle className="text-pink-700 text-xl">
+          🌸 Period Prediction
+        </CardTitle>
+        <CardDescription>
+          Personalized prediction based on your cycle history
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="grid grid-cols-2 gap-4">
+
+        <div className="rounded-xl border p-4 bg-white">
+          <p className="text-sm text-muted-foreground">Next Expected Date</p>
+          <p className="text-lg font-semibold text-pink-600">
+            {prediction.nextPeriodDate}
+          </p>
+        </div>
+
+        <div className="rounded-xl border p-4 bg-white">
+          <p className="text-sm text-muted-foreground">Days Remaining</p>
+          <p className="text-lg font-semibold text-purple-600">
+            {prediction.daysRemaining} days
+          </p>
+        </div>
+
+      </CardContent>
+
+      <CardFooter>
+        <p className="text-sm text-pink-800">
+          💡 Tip: Take proper rest and hydrate before your cycle days.
+        </p>
+      </CardFooter>
+
+    </Card>
+  </div>
+)}
     </div>
   );
 }

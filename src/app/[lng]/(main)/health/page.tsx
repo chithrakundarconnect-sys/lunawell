@@ -122,6 +122,13 @@ createdAt: serverTimestamp(),
 };
 
 try {
+   // 🔹 Save daily health (for dashboard)
+    if (docId) {
+      await updateDoc(doc(db, "dailyHealth", docId), healthData);
+    } else {
+      const newDoc = await addDoc(collection(db, "dailyHealth"), healthData);
+      setDocId(newDoc.id);
+    }
 await setDoc(
   doc(db, "users", user.uid),
   {
