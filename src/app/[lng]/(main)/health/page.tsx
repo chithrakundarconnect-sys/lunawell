@@ -133,25 +133,14 @@ await setDoc(
   doc(db, "users", user.uid),
   {
     lastPeriodDate: lastPeriodDate
-      ? lastPeriodDate.toISOString().split("T")[0]
+      ? format(lastPeriodDate, "yyyy-MM-dd")
       : null,
-    cycleLength: cycleLength,
-    periodLength: periodLength,
+    cycleLength,
+    periodLength,
   },
   { merge: true }
 );
 
-await setDoc(
-  doc(db, "users", user.uid),
-  {
-    lastPeriodDate: lastPeriodDate
-      ? lastPeriodDate.toISOString().split("T")[0]
-      : null,
-    cycleLength: cycleLength,
-    periodLength: periodLength,
-  },
-  { merge: true }
-);
 toast({
   title: "Health Data Saved!",
   description: "Your wellness data has been updated successfully.",

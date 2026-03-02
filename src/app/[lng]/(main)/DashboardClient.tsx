@@ -403,11 +403,35 @@ useEffect(() => {
 
       </CardContent>
 
-      <CardFooter>
-        <p className="text-sm text-pink-800">
-          💡 Tip: Take proper rest and hydrate before your cycle days.
-        </p>
-      </CardFooter>
+      <CardFooter className="flex flex-col items-start gap-3">
+
+  {/* Recommendation from Backend */}
+  <p className="text-sm text-pink-800 font-medium">
+    💡 {prediction.recommendation}
+  </p>
+
+  {/* 🔴 Cycle Starting Today */}
+  {prediction.daysRemaining === 0 && (
+    <div className="w-full p-3 rounded-lg bg-red-100 border border-red-300 text-red-700 font-semibold">
+      🔴 Your cycle may start today!
+    </div>
+  )}
+
+  {/* ⚠️ Approaching (1–3 days) */}
+  {prediction.daysRemaining > 0 && prediction.daysRemaining <= 3 && (
+    <div className="w-full p-3 rounded-lg bg-orange-100 border border-orange-300 text-orange-700 font-semibold">
+      ⚠️ Your period is approaching soon!
+    </div>
+  )}
+
+  {/* ⏳ Date Passed */}
+  {prediction.daysRemaining < 0 && (
+    <div className="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-700 font-semibold">
+      ⏳ Your cycle date has passed. Please update your last period date.
+    </div>
+  )}
+
+</CardFooter>
 
     </Card>
   </div>
