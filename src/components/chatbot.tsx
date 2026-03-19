@@ -1,5 +1,7 @@
 "use client";
 
+import { useParams } from "next/navigation";
+import { useTranslation } from "@/lib/i18n/client";
 import { useState, useRef, useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { Send, User, Loader2 } from "lucide-react";
@@ -27,6 +29,8 @@ const chatSchema = z.object({
 type ChatInput = z.infer<typeof chatSchema>;
 
 export function Chatbot() {
+  const params = useParams() as { lng: string };
+const { t } = useTranslation(params.lng, "common");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -60,7 +64,11 @@ export function Chatbot() {
     reset();
     
     try {
-      const result = await aiSelfCareChatbot({ question: data.message });
+  
+const result = await aiSelfCareChatbot({
+  question: data.message,
+  language: params.lng
+});
       const aiMessage: Message = {
         id: `ai-${Date.now()}`,
         text: result.answer,
@@ -70,7 +78,7 @@ export function Chatbot() {
     } catch (error) {
       const errorMessage: Message = {
         id: `err-${Date.now()}`,
-        text: "Sorry, I couldn't process your request. Please try again.",
+        text: t("chatbot_error"),
         sender: "ai",
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -86,8 +94,8 @@ export function Chatbot() {
           {messages.length === 0 && (
             <div className="text-center text-muted-foreground py-12">
               <KikiAvatar className="mx-auto h-24 w-24 animate-float" />
-              <h3 className="mt-4 text-lg font-medium font-headline">Hi! I’m Kiki 💕</h3>
-              <p className="text-sm">I’m here to help you take care of yourself. Ask me anything about women's health, wellness, and self-care.</p>
+              <h3 className="mt-4 text-lg font-medium font-headline">{t("chatbot_title")} 💕</h3>
+              <p className="text-sm">{t("chatbot_desc")}</p>
             </div>
           )}
           {messages.map((message) => (
@@ -142,7 +150,7 @@ export function Chatbot() {
         <form onSubmit={handleSubmit(onSubmit)} className="flex items-center gap-2">
           <Input
             {...register("message")}
-            placeholder="Ask Kiki a question..."
+            placeholder={t("chatbot_placeholder")}
             autoComplete="off"
             disabled={isLoading}
           />

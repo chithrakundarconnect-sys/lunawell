@@ -99,9 +99,9 @@ export default function WaterIntakePage({ params }: { params: Promise<{ lng: str
 
       <Card className="max-w-2xl mx-auto">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Today's Progress</CardTitle>
+          <CardTitle className="text-2xl">{t("water_today_progress")}</CardTitle>
           <CardDescription className="text-lg">
-            {glasses} / {TOTAL_GLASSES} glasses
+            {glasses} / {TOTAL_GLASSES} {t("glasses")}
           </CardDescription>
         </CardHeader>
 

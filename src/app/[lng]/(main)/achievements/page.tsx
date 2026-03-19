@@ -141,15 +141,15 @@ return (
       <CardHeader>
         <CardTitle className="flex items-center gap-3">
           <Droplet className="size-6 text-blue-500" />
-          <span className="text-blue-900 dark:text-blue-300">Hydration Streak</span>
+          <span className="text-blue-900 dark:text-blue-300">{t("hydration_streak")}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold text-blue-900 dark:text-blue-200">
-          {hydrationStreak} Days
+        {hydrationStreak} {t("days")}
         </div>
         <p className="text-sm text-blue-700 dark:text-blue-400">
-          You’ve been consistently drinking enough water.
+          {t("hydration_desc")}
         </p>
       </CardContent>
     </Card>
@@ -158,12 +158,12 @@ return (
       <CardHeader>
         <CardTitle className="flex items-center gap-3">
           <ShieldCheck className="size-6 text-rose-500" />
-          <span className="text-rose-900 dark:text-rose-300">Skincare Champion</span>
+          <span className="text-rose-900 dark:text-rose-300">{t("skincare_champion")}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-rose-700 dark:text-rose-400">
-          Completed skincare routine for {skincareDays} days.
+         {t("skincare_completed")} {skincareDays} {t("days")}
         </p>
       </CardContent>
     </Card>
@@ -172,12 +172,12 @@ return (
       <CardHeader>
         <CardTitle className="flex items-center gap-3">
           <Star className="size-6 text-amber-500" />
-          <span className="text-amber-900 dark:text-amber-300">Wellness Star</span>
+          <span className="text-amber-900 dark:text-amber-300">{t("wellness_star")}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-amber-700 dark:text-amber-400">
-          Healthy activity recorded on {wellnessDays} days.
+          {t("wellness_recorded")} {wellnessDays} {t("days")}
         </p>
       </CardContent>
     </Card>
@@ -185,7 +185,7 @@ return (
   </div>
 
   <div className="text-center text-muted-foreground text-sm pt-4">
-    <p>Achievements are based on regular self-care activities.</p>
+    <p>{t("achievements_desc")}</p>
   </div>
 </div>
 

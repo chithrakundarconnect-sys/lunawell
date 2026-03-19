@@ -133,7 +133,7 @@ setEntries(data);
             <CardHeader>
               <CardTitle>{t('journal_todays_entry')}</CardTitle>
               <CardDescription>
-                Take a moment to reflect on your physical and emotional state.
+                {t("journal_reflect_desc")}
               </CardDescription>
             </CardHeader>
 
@@ -165,7 +165,7 @@ setEntries(data);
 
               {entries.length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  No journal entries yet.
+                 {t("journal_no_entries")}
                 </p>
               )}
 

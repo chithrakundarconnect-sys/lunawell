@@ -8,6 +8,9 @@ import { useTranslation } from '@/lib/i18n/client';
 import { LanguageSelector } from '@/components/language-selector';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+
 import {
   Card,
   CardContent,
@@ -39,12 +42,36 @@ export default function SettingsPage({ params }: { params: { lng: string } }) {
   const { t } = useTranslation(lng, 'common');
   const { user } = useAuth();
 
+  const handleLogout = async () => {
+  try {
+    await signOut(auth);
+
+    localStorage.clear();   // ⭐ clears saved data
+    sessionStorage.clear(); // ⭐ extra safety
+
+    window.location.href = `/${lng}/login`;
+
+  } catch (error) {
+    console.log("Logout error", error);
+  }
+};
+
   const [theme, setTheme] = useState('light');
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+  setIsClient(true);
+
+  const savedTheme = localStorage.getItem("theme") || "light";
+  setTheme(savedTheme);
+
+  if (savedTheme === "dark") {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+
+}, []);
 
   // ⭐ USER DATA
   const userName =
@@ -84,7 +111,7 @@ export default function SettingsPage({ params }: { params: { lng: string } }) {
 
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Manage your personal wellness preferences and account details.
+           {t("settings_profile_description")}
           </p>
         </CardContent>
       </Card>
@@ -94,10 +121,10 @@ export default function SettingsPage({ params }: { params: { lng: string } }) {
         <div className="space-y-2">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <BellRing className="size-5 text-primary" />
-            <span>Preferences</span>
+            <span>{t("preferences")}</span>
           </h2>
           <p className="text-muted-foreground text-sm">
-            Control how you receive notifications and reminders.
+           {t("preferences_description")}
           </p>
         </div>
 
@@ -105,21 +132,21 @@ export default function SettingsPage({ params }: { params: { lng: string } }) {
           <CardContent className="pt-6 space-y-6">
 
             <div className="flex items-center justify-between">
-              <Label>Water Reminders</Label>
+              <Label>{t("water_reminders")}</Label>
               <Switch defaultChecked />
             </div>
 
             <Separator />
 
             <div className="flex items-center justify-between">
-              <Label>Skincare Reminders</Label>
+              <Label>{t("skincare_reminders")}</Label>
               <Switch defaultChecked />
             </div>
 
             <Separator />
 
             <div className="flex items-center justify-between">
-              <Label>Wellness Notifications</Label>
+              <Label>{t("wellness_notifications")}</Label>
               <Switch />
             </div>
 
@@ -139,7 +166,20 @@ export default function SettingsPage({ params }: { params: { lng: string } }) {
         <Card>
           <CardContent className="pt-6 space-y-6">
 
-            <RadioGroup value={theme} onValueChange={setTheme} className="space-y-4">
+            <RadioGroup
+  value={theme}
+  onValueChange={(value) => {
+    setTheme(value)
+    localStorage.setItem("theme", value)
+
+    if (value === "dark") {
+      document.documentElement.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+    }
+  }}
+  className="space-y-4"
+>
 
               <div className="flex items-center justify-between">
                 <Label>{t('light_theme')}</Label>
@@ -149,8 +189,8 @@ export default function SettingsPage({ params }: { params: { lng: string } }) {
               <Separator />
 
               <div className="flex items-center justify-between">
-                <Label>{t('pastel_theme')}</Label>
-                <RadioGroupItem value="pastel" />
+                <Label>{t('dark_theme')}</Label>
+<RadioGroupItem value="dark" />
               </div>
 
             </RadioGroup>
@@ -166,7 +206,7 @@ export default function SettingsPage({ params }: { params: { lng: string } }) {
       {/* ACCOUNT ACTIONS */}
       <div className="space-y-6">
         <div className="space-y-2">
-          <h2 className="text-xl font-semibold">Account Actions</h2>
+          <h2 className="text-xl font-semibold">{t("account_actions")}</h2>
         </div>
 
         <Card>
@@ -188,12 +228,12 @@ export default function SettingsPage({ params }: { params: { lng: string } }) {
                 <div className="grid gap-4 py-4">
 
                   <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
-                    <Label>Name</Label>
+                    <Label>{t("name")}</Label>
                     <Input defaultValue={userName} className="col-span-3" />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
-                    <Label>Email</Label>
+                    <Label>{t("email")}</Label>
                     <Input defaultValue={userEmail} className="col-span-3" readOnly />
                   </div>
 
@@ -208,10 +248,9 @@ export default function SettingsPage({ params }: { params: { lng: string } }) {
               </DialogContent>
             </Dialog>
 
-            <Button variant="destructive" asChild>
-              <Link href={`/${lng}/login`}>{t('logout')}</Link>
+           <Button variant="destructive" onClick={handleLogout}>
+          {t('logout')}
             </Button>
-
           </CardContent>
         </Card>
       </div>

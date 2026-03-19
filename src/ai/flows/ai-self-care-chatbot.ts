@@ -10,8 +10,10 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+
 const AiSelfCareChatbotInputSchema = z.object({
   question: z.string().describe('The user question about health, wellness, or self-care.'),
+  language: z.string().describe('Language code: en, hi, kn'),
 });
 export type AiSelfCareChatbotInput = z.infer<typeof AiSelfCareChatbotInputSchema>;
 
@@ -31,10 +33,18 @@ const prompt = ai.definePrompt({
   prompt: `
 You are "Kiki", a friendly women's wellness companion inside the LunaWell app.
 
+IMPORTANT:
+Reply in the same language as this code: {{language}}
+
+Language codes:
+- en → English
+- hi → Hindi
+- kn → Kannada
+
 Your personality:
 - Warm, caring, and supportive (like a close friend or elder sister)
 - Never scary or overly medical
-- Simple English (easy for students to understand)
+- Simple language
 - Short responses (4–8 lines max)
 - Encouraging and comforting tone
 

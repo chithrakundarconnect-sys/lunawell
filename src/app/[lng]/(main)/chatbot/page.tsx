@@ -13,7 +13,7 @@ export default function ChatbotPage({ params }: { params: Promise<{ lng: string 
       <div className="mb-4">
         <h1 className="text-2xl sm:text-3xl font-bold">{t('page_title_chatbot')}</h1>
         <p className="text-muted-foreground pt-1">
-          Hi, I’m Kiki 🌸 Your wellness companion
+         {t("chatbot_welcome")}
         </p>
       </div>
       <Chatbot />

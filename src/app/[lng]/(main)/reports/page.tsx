@@ -50,14 +50,25 @@ export default function ReportsPage() {
     const loadData = async () => {
 
       // ================= MOOD (UNCHANGED) =================
-      const mood = await getMoodAnalytics(user.uid);
+     const mood = await getMoodAnalytics(user.uid);
 
-      const colored = [
-        { ...mood[0], fill: "hsl(var(--chart-2))" },
-        { ...mood[1], fill: "hsl(var(--chart-1))" },
-        { ...mood[2], fill: "hsl(var(--chart-4))" },
-        { ...mood[3], fill: "hsl(var(--chart-3))" },
-      ];
+const moodTranslations: any = {
+  Happy: t("mood_happy"),
+  Calm: t("mood_calm"),
+  Stressed: t("mood_stressed"),
+  Tired: t("mood_tired"),
+};
+
+const colored = mood.map((m: any, index: number) => ({
+  ...m,
+  mood: moodTranslations[m.mood] || m.mood,
+  fill: [
+    "hsl(var(--chart-2))",
+    "hsl(var(--chart-1))",
+    "hsl(var(--chart-4))",
+    "hsl(var(--chart-3))",
+  ][index],
+}));
 
       setMoodData(colored);
 
@@ -77,7 +88,10 @@ export default function ReportsPage() {
 
         if (d.sleepHours) {
           sleepList.push({
-            date: new Date(d.date).toLocaleDateString("en-US", { weekday: "short" }),
+            date: new Date(d.date).toLocaleDateString(
+  lng === "hi" ? "hi-IN" : lng === "kn" ? "kn-IN" : "en-US",
+  { weekday: "short" }
+),
             hours: d.sleepHours,
           });
         }
@@ -100,7 +114,10 @@ export default function ReportsPage() {
         const d = doc.data();
 
         waterList.push({
-          date: new Date(d.date).toLocaleDateString("en-US", { weekday: "short" }),
+          date: new Date(d.date).toLocaleDateString(
+  lng === "hi" ? "hi-IN" : lng === "kn" ? "kn-IN" : "en-US",
+  { weekday: "short" }
+),
           glasses: d.glasses,
         });
       });
@@ -128,8 +145,8 @@ export default function ReportsPage() {
         {/* SLEEP */}
         <Card>
           <CardHeader>
-            <CardTitle>Weekly Sleep Pattern</CardTitle>
-            <CardDescription>Average sleep duration over the last 7 days.</CardDescription>
+           <CardTitle>{t("weekly_sleep_pattern")}</CardTitle>
+           <CardDescription>{t("sleep_last_7_days")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-64 w-full">
@@ -147,8 +164,8 @@ export default function ReportsPage() {
         {/* WATER */}
         <Card>
           <CardHeader>
-            <CardTitle>Water Intake Consistency</CardTitle>
-            <CardDescription>Daily water intake over the last week.</CardDescription>
+            <CardTitle>{t("water_intake_consistency")}</CardTitle>
+            <CardDescription>{t("water_last_week")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-64 w-full">
@@ -166,8 +183,8 @@ export default function ReportsPage() {
         {/* MOOD (UNCHANGED) */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Monthly Mood Distribution</CardTitle>
-            <CardDescription>This chart is now generated from your real mood logs.</CardDescription>
+           <CardTitle>{t("monthly_mood_distribution")}</CardTitle>
+           <CardDescription>{t("mood_chart_description")}</CardDescription>
           </CardHeader>
 
           <CardContent className="flex justify-center">

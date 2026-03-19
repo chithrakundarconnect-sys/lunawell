@@ -141,6 +141,12 @@ const [prediction, setPrediction] = useState<any>(null);
 
     const data: any = snapshot.docs[0].data();
 
+    // ---- Mood ----
+if (data.mood) {
+  setSelectedMood(data.mood);
+}
+
+
     // ---- Sleep ----
     if (data.sleepHours) {
       setSleepHours(data.sleepHours);
@@ -244,11 +250,12 @@ useEffect(() => {
   }, [user, lng]);
 
   const moodOptions = [
-    { name: 'Happy', icon: Smile },
-    { name: 'Calm', icon: Wind },
-    { name: 'Stressed', icon: Annoyed },
-    { name: 'Tired', icon: Bed },
-  ];
+  { name: 'Happy', label: t("mood_happy"), icon: Smile },
+  { name: 'Calm', label: t("mood_calm"), icon: Wind },
+  { name: 'Stressed', label: t("mood_stressed"), icon: Annoyed },
+  { name: 'Tired', label: t("mood_tired"), icon: Bed },
+];
+
 
   return (
     <div className="flex flex-col gap-8">
@@ -269,9 +276,9 @@ useEffect(() => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Droplet className="size-5 text-primary" />
-              <span>Water Intake</span>
+              <span>{t("water_intake")}</span>
             </CardTitle>
-            <CardDescription>Daily Goal: 8 glasses</CardDescription>
+            <CardDescription>{t("daily_goal")}</CardDescription>
           </CardHeader>
 
           <CardContent>
@@ -300,13 +307,13 @@ useEffect(() => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Smile className="size-5 text-primary" />
-              <span>Mood & Stress</span>
+              <span>{t("mood_stress")}</span>
             </CardTitle>
-            <CardDescription>Last logged: {selectedMood}</CardDescription>
+            <CardDescription>{t("last_logged")}: {selectedMood}</CardDescription>
           </CardHeader>
 
           <CardContent className="flex justify-around items-center">
-            {moodOptions.map(({ name, icon: Icon }) => (
+            {moodOptions.map(({ name,label, icon: Icon }) => (
               <Button
                 key={name}
                 variant={selectedMood === name ? 'secondary' : 'ghost'}
@@ -317,7 +324,7 @@ useEffect(() => {
                 }}
               >
                 <Icon className="size-7 sm:size-8" />
-                <span className="text-xs font-medium">{name}</span>
+                <span className="text-xs font-medium">{label}</span>
               </Button>
             ))}
           </CardContent>
@@ -328,15 +335,15 @@ useEffect(() => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sun className="size-5 text-primary" />
-              <span>Daily Skincare</span>
+             <span>{t("daily_skincare")}</span>
             </CardTitle>
-            <CardDescription>Your AM & PM routine status.</CardDescription>
+            <CardDescription>{t("skincare_status")}</CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-3">
             <Link href={`/${lng}/skincare`}>
               <div className="rounded-lg border p-3 hover:bg-accent cursor-pointer">
-                <span className="font-medium">Morning Routine</span>
+                <span className="font-medium">{t("morning_routine")}</span>
                 <p className="text-xs text-muted-foreground">
                   {morningDone} / 5 steps completed
                 </p>
@@ -345,7 +352,7 @@ useEffect(() => {
 
           <Link href={`/${lng}/skincare`}>
               <div className="rounded-lg border p-3 hover:bg-accent cursor-pointer">
-                <span className="font-medium">Evening Routine</span>
+                <span className="font-medium">{t("evening_routine")}</span>
                 <p className="text-xs text-muted-foreground">
                   {eveningDone} / 5 steps completed
                 </p>
@@ -359,14 +366,18 @@ useEffect(() => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="size-5 text-primary" />
-              <span>Wellness Summary</span>
+              <span>{t("wellness_summary")}</span>
             </CardTitle>
           </CardHeader>
 
           <CardContent>
             {sleepHours
-              ? `You slept ${sleepHours} hours today. Morning routine ${morningDone}/5 and evening routine ${eveningDone}/5 completed.`
-              : "No health data recorded today yet."}
+              ? t("wellness_summary_text", {
+      sleep: sleepHours,
+      morning: morningDone,
+      evening: eveningDone,
+    })
+  : t("no_health_data")}
           </CardContent>
         </Card>
 
@@ -378,26 +389,29 @@ useEffect(() => {
       
       <CardHeader>
         <CardTitle className="text-pink-700 text-xl">
-          🌸 Period Prediction
+          🌸 {t("period_prediction")}
         </CardTitle>
         <CardDescription>
-          Personalized prediction based on your cycle history
+          {t("period_prediction_desc")}
         </CardDescription>
       </CardHeader>
 
       <CardContent className="grid grid-cols-2 gap-4">
 
         <div className="rounded-xl border p-4 bg-white">
-          <p className="text-sm text-muted-foreground">Next Expected Date</p>
+         <p className="text-sm text-muted-foreground">
+  {t("next_expected_date")} </p>
           <p className="text-lg font-semibold text-pink-600">
             {prediction.nextPeriodDate}
           </p>
         </div>
 
         <div className="rounded-xl border p-4 bg-white">
-          <p className="text-sm text-muted-foreground">Days Remaining</p>
+          <p className="text-sm text-muted-foreground">
+  {t("days_remaining")}
+</p>
           <p className="text-lg font-semibold text-purple-600">
-            {prediction.daysRemaining} days
+            {prediction.daysRemaining} {t("days")}
           </p>
         </div>
 
@@ -407,27 +421,27 @@ useEffect(() => {
 
   {/* Recommendation from Backend */}
   <p className="text-sm text-pink-800 font-medium">
-    💡 {prediction.recommendation}
+    💡 {t("cycle_health_tip")}
   </p>
 
   {/* 🔴 Cycle Starting Today */}
   {prediction.daysRemaining === 0 && (
     <div className="w-full p-3 rounded-lg bg-red-100 border border-red-300 text-red-700 font-semibold">
-      🔴 Your cycle may start today!
+      🔴 {t("cycle_today")}
     </div>
   )}
 
   {/* ⚠️ Approaching (1–3 days) */}
   {prediction.daysRemaining > 0 && prediction.daysRemaining <= 3 && (
     <div className="w-full p-3 rounded-lg bg-orange-100 border border-orange-300 text-orange-700 font-semibold">
-      ⚠️ Your period is approaching soon!
+      ⚠️ {t("period_approaching")}
     </div>
   )}
 
   {/* ⏳ Date Passed */}
   {prediction.daysRemaining < 0 && (
     <div className="w-full p-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-700 font-semibold">
-      ⏳ Your cycle date has passed. Please update your last period date.
+      ⏳ {t("cycle_passed_message")}
     </div>
   )}
 

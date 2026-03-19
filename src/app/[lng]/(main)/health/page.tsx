@@ -142,15 +142,15 @@ await setDoc(
 );
 
 toast({
-  title: "Health Data Saved!",
-  description: "Your wellness data has been updated successfully.",
+  title:  t("health_saved"),
+  description: t("health_saved_desc"),
 });
 
 } catch (error) {
 console.error(error);
 toast({
-title: "Error",
-description: "Failed to save health data",
+title: t("error"),
+description:t("health_save_failed"),
 });
 }
 };
@@ -180,17 +180,17 @@ return (
       <CardHeader>  
         <CardTitle className="flex items-center gap-2">  
           <Leaf className="size-5 text-primary" />  
-          <span>Menstrual Cycle</span>  
+         <span>{t("menstrual_cycle")}</span> 
         </CardTitle>  
         <CardDescription>  
-          Track your cycle for wellness insights.  
+         {t("cycle_tracking_desc")}
         </CardDescription>  
       </CardHeader>  
       <CardContent className="space-y-6">  
         {isClient && (  
           <>  
             <div className="space-y-2">  
-              <Label htmlFor="last-period">Last Period Start Date</Label>  
+              <Label htmlFor="last-period">{t("last_period_start")}</Label>  
               <Popover>  
                 <PopoverTrigger asChild>  
                   <Button  
@@ -203,7 +203,7 @@ return (
                     <CalendarIcon className="mr-2 h-4 w-4" />  
                     {lastPeriodDate instanceof Date && !isNaN(lastPeriodDate.getTime())
   ? format(lastPeriodDate, "PPP")
-  : "Pick a date"}
+  : t("pick_date")}
                   </Button>  
                 </PopoverTrigger>  
                 <PopoverContent className="w-auto p-0">  
@@ -221,7 +221,7 @@ return (
               </Popover>  
             </div>  
             <div className="space-y-2">  
-              <Label htmlFor="cycle-length">Average Cycle Length (days)</Label>  
+              <Label htmlFor="cycle-length">{t("cycle_length")}</Label>  
               <Input
   id="cycle-length"
   type="number"
@@ -231,7 +231,7 @@ return (
 />
             </div>  
             <div className="space-y-2">  
-              <Label htmlFor="period-length">Average Period Length (days)</Label>  
+              <Label htmlFor="period-length">{t("period_length")}</Label>  
               <Input
   id="period-length"
   type="number"
@@ -245,23 +245,23 @@ return (
       </CardContent>  
       <CardFooter>  
         <p className="text-xs text-muted-foreground">  
-          Used only for wellness tracking, not medical diagnosis.  
+         {t("cycle_note")}
         </p>  
       </CardFooter>  
     </Card>  
 
     <Card className="lg:col-span-2">  
       <CardHeader>  
-        <CardTitle>Daily Wellness Log</CardTitle>  
+        <CardTitle>{t("daily_wellness_log")}</CardTitle>  
         <CardDescription>  
-          How are you feeling today?  
+         {t("how_feeling_today")}
         </CardDescription>  
       </CardHeader>  
       <CardContent className="space-y-6">  
         <div className="space-y-4">  
           <Label className="flex items-center gap-2 font-medium">  
             <Smile className="size-5 text-yellow-500" />  
-            Mood  
+           {t("mood")}
           </Label>  
           <div className="flex justify-around items-center rounded-lg border p-2 sm:p-4">  
             {moodOptions.map(({ name, icon: Icon }) => (  
@@ -272,7 +272,7 @@ return (
                 onClick={() => setMood(name)}  
               >  
                 <Icon className="size-6 sm:size-7" />  
-                <span className="text-xs font-medium">{name}</span>  
+               <span className="text-xs font-medium">{t(`mood_${name.toLowerCase()}`)}</span>
               </Button>  
             ))}  
           </div>  
@@ -283,7 +283,7 @@ return (
             <div className="space-y-4">  
               <Label htmlFor="stress-level" className="flex items-center gap-2 font-medium">  
                 <Shield className="size-5 text-blue-500" />  
-                Stress Level: <span className="font-bold">{stressLevel[0]}</span>  
+                {t("stress_level")} : <span className="font-bold">{stressLevel[0]}</span>  
               </Label>  
               <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4">  
                 <span className="text-sm text-muted-foreground">Low</span>  
@@ -301,13 +301,13 @@ return (
             <Accordion type="single" collapsible className="w-full">  
               <AccordionItem value="item-1" className="border-b-0">  
                 <AccordionTrigger className="text-base font-medium text-muted-foreground hover:no-underline [&[data-state=open]>svg]:text-primary">  
-                    Optional Wellness Details  
+                    {t("optional_wellness")} 
                 </AccordionTrigger>  
                 <AccordionContent className="pt-6 space-y-8">  
                    <div className="space-y-4">  
                      <Label htmlFor="sleep-hours" className="flex items-center gap-2 font-medium">  
                        <Bed className="size-5 text-purple-500" />  
-                       Sleep Hours: <span className="font-bold">{sleepHours[0]}</span>  
+                       {t("sleep_hours")} : <span className="font-bold">{sleepHours[0]}</span>  
                      </Label>  
                      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4">  
                        <span className="text-sm text-muted-foreground">0</span>  
@@ -325,7 +325,7 @@ return (
                    <div className="space-y-4">  
                      <Label htmlFor="energy-level" className="flex items-center gap-2 font-medium">  
                        <Zap className="size-5 text-orange-500" />  
-                       Energy Level: <span className="font-bold">{energyLevel[0]}</span>  
+                       {t("energy_level")} : <span className="font-bold">{energyLevel[0]}</span>  
                      </Label>  
                      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4">  
                        <span className="text-sm text-muted-foreground">Low</span>  
@@ -343,20 +343,20 @@ return (
                    <div className="space-y-4">  
                      <Label className="flex items-center gap-2 font-medium">  
                        <Dumbbell className="size-5 text-green-500" />  
-                       Physical Activity  
+                      {t("physical_activity")}
                      </Label>  
                      <RadioGroup defaultValue="moderate" className="flex flex-wrap gap-4">  
                        <div className="flex items-center space-x-2">  
                          <RadioGroupItem value="light" id="activity-light" />  
-                         <Label htmlFor="activity-light">Light</Label>  
+                         <Label htmlFor="activity-light">{t("activity_light")}</Label>  
                        </div>  
                        <div className="flex items-center space-x-2">  
                          <RadioGroupItem value="moderate" id="activity-moderate" />  
-                         <Label htmlFor="activity-moderate">Moderate</Label>  
+                         <Label htmlFor="activity-moderate">{t("activity_moderate")}</Label>  
                        </div>  
                        <div className="flex items-center space-x-2">  
                          <RadioGroupItem value="active" id="activity-active" />  
-                         <Label htmlFor="activity-active">Active</Label>  
+                         <Label htmlFor="activity-active">{t("activity_active")}</Label>  
                        </div>  
                      </RadioGroup>  
                    </div>  

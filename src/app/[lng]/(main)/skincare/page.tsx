@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState } from "react"
-import { Check, Sun, Moon, Plus } from "lucide-react"
+import { Check, Sun, Moon, Plus, Trash2 } from "lucide-react"
 
 import type { SkincareItem } from "@/lib/types"
 import { useTranslation } from "@/lib/i18n/client"
@@ -51,7 +51,15 @@ const initialEveningRoutine: SkincareItem[] = [
   { id: "e5", name: "Night Cream", completed: false },
 ]
 
-function SkincareRoutineList({ items, onToggle }: { items: SkincareItem[], onToggle: (id: string) => void }) {
+function SkincareRoutineList({
+  items,
+  onToggle,
+  onDelete
+}: {
+  items: SkincareItem[],
+  onToggle: (id: string) => void,
+  onDelete: (id: string) => void
+}){
   return (
     <div className="space-y-3">
       {items.map((item, index) => (
@@ -70,15 +78,33 @@ function SkincareRoutineList({ items, onToggle }: { items: SkincareItem[], onTog
             {item.completed ? <Check className="h-4 w-4" /> : <span className="text-xs font-bold">{index + 1}</span>}
           </div>
           <span className={cn("flex-1 font-medium", item.completed && "text-muted-foreground line-through")}>
-            {item.name}
-          </span>
+  {item.name}
+</span>
+
+<Trash2
+  onClick={(e) => {
+    e.stopPropagation();
+    onDelete(item.id);
+  }}
+  className="h-4 w-4 text-red-500 cursor-pointer hover:scale-110"
+/>
+
         </div>
       ))}
     </div>
   )
 }
 
-function AddProductDialog({ onAddProduct, children }: { onAddProduct: (name: string) => void; children: React.ReactNode }) {
+function AddProductDialog({
+  onAddProduct,
+  children,
+  t
+}: {
+  onAddProduct: (name: string) => void;
+  children: React.ReactNode;
+  t: any;
+}) {
+
   const [open, setOpen] = useState(false);
   const [productName, setProductName] = useState('');
 
@@ -97,30 +123,30 @@ function AddProductDialog({ onAddProduct, children }: { onAddProduct: (name: str
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Custom Product</DialogTitle>
+          <DialogTitle>{t("add_custom_product")}</DialogTitle>
           <DialogDescription>
-            Enter the name of the product you want to add to your routine.
+            {t("add_product_desc")}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
             <Label htmlFor="product-name" className="text-left sm:text-right">
-              Name
+              {t("name")}
             </Label>
             <Input
               id="product-name"
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
-              placeholder="e.g., Hyaluronic Acid"
+              placeholder={t("product_example")}
               className="col-span-3"
             />
           </div>
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">{t("cancel")}</Button>
           </DialogClose>
-          <Button onClick={handleAdd}>Add to Routine</Button>
+          <Button onClick={handleAdd}>{t("add_to_routine")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -211,6 +237,27 @@ React.useEffect(() => {
     updatedAt: serverTimestamp(),
   });
 };
+const deleteItem = (list: 'morning' | 'evening') => async (id: string) => {
+  if (!docId) return;
+
+  const routineMap = {
+    morning: { items: morningRoutine, setter: setMorningRoutine, field: "skincareMorning" },
+    evening: { items: eveningRoutine, setter: setEveningRoutine, field: "skincareEvening" },
+  };
+
+  const { items, setter, field } = routineMap[list];
+
+  const updated = items.filter((item) => item.id !== id);
+
+  setter(updated);
+
+  const docRef = doc(db, "dailyHealth", docId);
+
+  await updateDoc(docRef, {
+    [field]: updated,
+    updatedAt: serverTimestamp(),
+  });
+};
   
   const addProductToMorningRoutine = (name: string) => {
     const newItem: SkincareItem = {
@@ -233,7 +280,7 @@ React.useEffect(() => {
 if (loading) {
 return (
 <div className="p-10 text-center text-lg">
-Loading skincare...
+{t("loading_skincare")}
 </div>
 );
 }
@@ -255,26 +302,30 @@ Loading skincare...
         <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
           <TabsTrigger value="morning">
             <Sun className="mr-2 h-4 w-4" />
-            Morning
+           {t("morning")}
           </TabsTrigger>
           <TabsTrigger value="evening">
             <Moon className="mr-2 h-4 w-4" />
-            Evening
+            {t("evening")}
           </TabsTrigger>
         </TabsList>
         <TabsContent value="morning">
           <Card>
             <CardHeader>
-              <CardTitle>AM Routine</CardTitle>
-              <CardDescription>Prepare and protect your skin for the day ahead.</CardDescription>
+              <CardTitle>{t("am_routine")}</CardTitle>
+              <CardDescription>{t("am_routine_desc")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <SkincareRoutineList items={morningRoutine} onToggle={toggleItem('morning')} />
+              <SkincareRoutineList
+  items={morningRoutine}
+  onToggle={toggleItem('morning')}
+  onDelete={deleteItem('morning')}
+/>
               <div className="mt-6">
-                <AddProductDialog onAddProduct={addProductToMorningRoutine}>
+               <AddProductDialog onAddProduct={addProductToMorningRoutine} t={t}>
                     <Button variant="outline" className="w-full">
                         <Plus className="mr-2 h-4 w-4" />
-                        Add Custom Product
+                        {t("add_custom_product")}
                     </Button>
                 </AddProductDialog>
               </div>
@@ -284,16 +335,20 @@ Loading skincare...
         <TabsContent value="evening">
           <Card>
             <CardHeader>
-              <CardTitle>PM Routine</CardTitle>
-              <CardDescription>Repair and rejuvenate your skin while you sleep.</CardDescription>
+              <CardTitle>{t("pm_routine")}</CardTitle>
+              <CardDescription>{t("pm_routine_desc")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <SkincareRoutineList items={eveningRoutine} onToggle={toggleItem('evening')} />
+             <SkincareRoutineList
+  items={eveningRoutine}
+  onToggle={toggleItem('evening')}
+  onDelete={deleteItem('evening')}
+/>
               <div className="mt-6">
-                <AddProductDialog onAddProduct={addProductToEveningRoutine}>
+               <AddProductDialog onAddProduct={addProductToEveningRoutine} t={t}>
                     <Button variant="outline" className="w-full">
                         <Plus className="mr-2 h-4 w-4" />
-                        Add Custom Product
+                       {t("add_custom_product")}
                     </Button>
                 </AddProductDialog>
               </div>

@@ -44,7 +44,7 @@ export function Nav({ lng }: { lng: string }) {
     { href: `/${lng}/achievements`, label: t('sidebar_achievements'), icon: Trophy },
 
     // ⭐ NEW PAGE (your breast awareness)
-    { href: `/${lng}/breast-awareness`, label: "Breast Awareness", icon: HeartPulse },
+    { href: `/${lng}/breast-awareness`, label: t("sidebar_breast_awareness"), icon: HeartPulse },
 
     { href: `/${lng}/chatbot`, label: t('sidebar_ai_assistant'), icon: Bot },
     { href: `/${lng}/settings`, label: t('sidebar_settings'), icon: Settings },

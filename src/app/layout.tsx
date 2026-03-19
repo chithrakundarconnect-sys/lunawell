@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 import { languages } from '@/lib/i18n/settings';
 import { AuthProvider } from "@/context/AuthContext";
+import ReminderListener from "@/components/ReminderListener"
 
 export const metadata: Metadata = {
   title: 'LunaWell',
@@ -38,6 +39,7 @@ export default function RootLayout({
 
         {/* 🔥 This activates Firebase Authentication across the app */}
         <AuthProvider>
+          <ReminderListener />
           {children}
           <Toaster />
         </AuthProvider>
