@@ -31,28 +31,36 @@ const [wellnessDays, setWellnessDays] = useState(0);
   if (!records.length) return 0;
 
   // keep only days user actually drank water
-  const dates = records
-    .filter(r => r.glasses > 0)
-    .map(r => r.date)
-    .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+  const dates = Array.from(
+  new Set(
+    records
+      .filter(r => r.glasses > 0)
+      .map(r => r.date)
+  )
+).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
   let streak = 0;
-  let current = new Date();
 
-  for (let i = 0; i < dates.length; i++) {
-    const recordDate = new Date(dates[i]);
+let current = new Date();
+current.setHours(0, 0, 0, 0);
 
-    const diff =
-      Math.floor((current.getTime() - recordDate.getTime()) / (1000 * 60 * 60 * 24));
+for (let i = 0; i < dates.length; i++) {
+  const recordDate = new Date(dates[i]);
+  recordDate.setHours(0, 0, 0, 0);
 
-    // today OR yesterday → continue streak
-    if (diff === 0 || diff === 1) {
-      streak++;
-      current = recordDate;
-    } else {
-      break;
-    }
+  const diff = Math.floor(
+    (current.getTime() - recordDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (i === 0 && diff !== 0) break; // ❗ must start from today
+
+  if (diff === 0 || diff === 1) {
+    streak++;
+    current = recordDate;
+  } else {
+    break;
   }
+}
 
   return streak;
 };
@@ -60,8 +68,12 @@ const [wellnessDays, setWellnessDays] = useState(0);
 
 /* ⭐ LOAD ACHIEVEMENTS FROM FIRESTORE */
 useEffect(() => {
-if (!user) return;
-
+  if (!user) {
+    setHydrationStreak(0); // ⭐ reset
+    setSkincareDays(0);
+    setWellnessDays(0);
+    return;
+  }
 const loadAchievements = async () => {
 
   // ---------- WATER STREAK ----------
@@ -70,6 +82,9 @@ const loadAchievements = async () => {
   );
 const waterRecords: any[] = [];
 waterSnap.forEach(d => waterRecords.push(d.data()));
+
+console.log("USER:", user.uid);
+console.log("WATER RECORDS:", waterRecords.length);
 
 setHydrationStreak(calculateHydrationStreak(waterRecords));
   // ---------- SKINCARE + WELLNESS ----------
