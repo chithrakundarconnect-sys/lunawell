@@ -255,9 +255,9 @@ All major functionality was successfully validated.
 Main Application
 
 Frontend + Backend
+https://github.com/chithrakundarconnect-sys/lunawell
 
 Machine Learning Module
-
 https://github.com/chaithra397/lunawell-ml
 
 ---
