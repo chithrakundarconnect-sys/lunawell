@@ -250,6 +250,17 @@ The application was tested for:
 All major functionality was successfully validated.
 
 ---
+🔗 Project Repositories
+
+Main Application
+
+Frontend + Backend
+
+Machine Learning Module
+
+https://github.com/chaithra397/lunawell-ml
+
+---
 
 🎯 Final Year Project Objective
 
